@@ -5,20 +5,34 @@ import java.util.*;
  */
 public class Snake {
     public static void main(String[] args) {
-        // TODO read cases from System.in
+        Scanner scanner = new Scanner(System.in);
+        int numCases = scanner.nextInt();
 
-        String[] food = {"1 1 2 3","4 4 1 1"};
-        Queue<Character> instr = new LinkedList<>();
-        instr.add('F');
-        instr.add('L');
-        instr.add('F');
-        instr.add('R');
-        instr.add('R');
-        instr.add('F');
-        instr.add('F');
-        SnakeGame game = new SnakeGame(4, 2, 3, instr, food);
-        game.printGameBoard();
-        game.runGame();
+        for (int currCase = 1; currCase <= numCases; currCase++) {
+            scanner.nextLine();
+
+            int gridSize = scanner.nextInt();
+            int foodCount = scanner.nextInt();
+            int startCol = scanner.nextInt();
+            int startLine = scanner.nextInt();
+            scanner.nextLine();
+
+            String[] foodBlocks = new String[foodCount];
+            for (int i = 0; i < foodCount; i++) {
+                foodBlocks[i] = scanner.nextLine();
+            }
+
+            Queue<Character> instructions = new LinkedList<>();
+            String instructionsString = scanner.nextLine().split(" ")[1];
+            for (int i = 0; i < instructionsString.length(); i++) {
+                instructions.add(instructionsString.charAt(i));
+            }
+
+            SnakeGame game = new SnakeGame(gridSize, startCol, startLine, instructions, foodBlocks);
+            game.runGame();
+
+            System.out.println("Case #" + currCase + ": " + game.numSteps + " " + game.score);
+        }
     }
 }
 
@@ -70,17 +84,17 @@ class SnakeGame {
             switch (instructions.remove()) {
                 case 'L':
                     snakeDir = snakeDir.turnLeft();
-                    System.out.println("turning left");
+                    //System.out.println("turning left");
                     break;
                 case 'R':
                     snakeDir = snakeDir.turnRight();
-                    System.out.println("turning right");
+                    //System.out.println("turning right");
                     break;
             }
             if (!moveForward()) { // terminate when snake hits obstacle
                 return;
             }
-            printGameBoard();
+            //printGameBoard();
         }
     }
 
@@ -124,21 +138,27 @@ class SnakeGame {
                 headCol = headCol - 1;
                 break;
         }
-        try {
-            tileToMoveTo = gameBoard[headCol][headLine];
-        } catch(ArrayIndexOutOfBoundsException e) { // snake hits wall
-            return false;
+        if (headCol >= gameBoard.length) {
+            headCol = 0;
+        } else if (headCol < 0) {
+            headCol = gameBoard.length - 1;
+        } else if (headLine >= gameBoard[0].length) {
+            headLine = 0;
+        } else if (headLine < 0) {
+            headLine = gameBoard[0].length - 1;
         }
-        if (snake.contains(tileToMoveTo)) { // snake hits itself
-            return false;
-        }
-        snake.add(tileToMoveTo);
+
+        tileToMoveTo = gameBoard[headCol][headLine];
         if (tileToMoveTo.hasFood) {
             score++;
             tileToMoveTo.hasFood = false;
         } else {
             snake.remove();
         }
+        if (snake.contains(tileToMoveTo)) { // snake hits itself
+            return false;
+        }
+        snake.add(tileToMoveTo);
         numSteps++;
         return true;
     }
