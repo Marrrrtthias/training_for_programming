@@ -64,14 +64,14 @@ public class PizzaToppings {
                         //System.out.println("cancelling, because node " + neighbor + " is " + color[neighbor]);
                         return false;
                     }
-                    color[nodeToColor] = currentColor;
-                    isColored[nodeToColor] = true;
                     if (!isColored[neighbor]) {
                         toColor.add(neighbor);
                         parent[neighbor] = nodeToColor;
                     }
-                    //System.out.println("Node " + nodeToColor + " colored " + currentColor);
                 }
+                color[nodeToColor] = currentColor;
+                isColored[nodeToColor] = true;
+                //System.out.println("Node " + nodeToColor + " colored " + currentColor);
             }
             boolean allColored = true;
             for (int i = 0; i < isColored.length; i++) {
