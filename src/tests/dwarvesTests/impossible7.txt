@@ -1,0 +1,11 @@
+10
+a > b
+c < b
+c > d
+a > d
+a > y
+c > x
+x > y
+f < d
+a < y
+g > r

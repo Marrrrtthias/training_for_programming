@@ -1,0 +1,4 @@
+3
+dori > balin
+balin > kili
+dori < kili
