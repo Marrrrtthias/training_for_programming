@@ -54,7 +54,7 @@ public class Kastenlauf {
         return city[city.length-1];
     }
 
-    static int distanceInBeers(int[] a, int[] b) {
-        return (Math.abs(a[0]-b[0]) + Math.abs(a[1]-b[1])) / 50;
+    static double distanceInBeers(int[] a, int[] b) {
+        return (Math.abs(a[0]-b[0]) + Math.abs(a[1]-b[1])) / 50.0;
     }
 }
