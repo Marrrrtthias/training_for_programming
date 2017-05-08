@@ -16,7 +16,7 @@ public class Minotaur {
             String[] cavernsAndStartPos = input.split("\\. ");
             char minotaurPos = cavernsAndStartPos[1].charAt(0);
             char theseusPos = cavernsAndStartPos[1].charAt(2);
-            int k = Integer.parseInt("" + cavernsAndStartPos[1].charAt(4));
+            int k = Integer.parseInt("" + cavernsAndStartPos[1].substring(4));
 
             caverns = new HashMap<>();
 
