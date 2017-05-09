@@ -1,7 +1,4 @@
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * Created by matthias on 5/9/17.
@@ -9,14 +6,83 @@ import java.util.Scanner;
 public class CallingCircles {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        int numCases = scanner.nextInt();
+        String input;
 
-        for (int currCase = 1; currCase <= numCases; currCase++) {
-            scanner.nextLine();
-            // TODO do something
+        while (!(input = scanner.nextLine()).equals("0 0")) {
+            int numPeople = Integer.parseInt(input.split(" ")[0]);
+            int numCalls = Integer.parseInt(input.split(" ")[1]);
 
-            System.out.println("Case #" + currCase + ": " /*TODO print something*/);
+            Digraph callGraph = new Digraph(numPeople);
+            String[] names = new String[numPeople];
+            int namesFilled = 0;
+
+            Map<String, Integer> namesToIndex = new HashMap<>();
+
+            for (int i = 0; i < numCalls; i++) {
+                input = scanner.nextLine();
+                String[] call = input.split(" ");
+                if (!Arrays.asList(names).contains(call[0])) {
+                    names[namesFilled] = call[0];
+                    namesToIndex.put(call[0], namesFilled);
+                    namesFilled++;
+                }
+                if (!Arrays.asList(names).contains(call[1])) {
+                    names[namesFilled] = call[1];
+                    namesToIndex.put(call[1], namesFilled);
+                    namesFilled++;
+                }
+                callGraph.addEdge(namesToIndex.get(call[0]), namesToIndex.get(call[1]));
+            }
+            namesToIndex = null;
+
+            strongComponents(callGraph);
+            Map<Integer, List<String>> cycles = new TreeMap<>();
+            for (int i = 0; i < sccId.length; i++) {
+                cycles.putIfAbsent(sccId[i], new LinkedList<>());
+                cycles.get(sccId[i]).add(names[i]);
+            }
+
+            for (int i : cycles.keySet()) {
+                System.out.println(cycles.get(i).toString());
+            }
+            System.out.println("--------------------");
         }
+    }
+
+    static int[] sccId;
+
+    static void strongComponents(Digraph G) {
+        int n = G.n;
+        sccId = new int[n];
+        // Phase 1
+        DFSGoneWild dfsRev = new DFSGoneWild(n);
+        dfsRev.dfsAllNodes(reverseGraph(G));
+        Collections.reverse(dfsRev.dfsPostorder);
+        // Phase 2
+        DFSGoneWild dfs = new DFSGoneWild(n);
+        int id = 0;
+        for (int s : dfsRev.dfsPostorder) {
+            if (dfs.visited[s]) {
+                continue;
+            }
+            dfs.dfsPostorder.clear();
+            dfs.dfs(G, s);
+            for (int v : dfs.dfsPostorder) {
+                sccId[v] = id;
+            }
+            id++;
+        }
+    }
+
+    static Digraph reverseGraph(Digraph G) {
+        int n = G.n;
+        Digraph result = new Digraph(n);
+        for (int v = 0; v < n; v++) {
+            for (int w : G.adj[v]) {
+                result.addEdge(w, v);
+            }
+        }
+        return result;
     }
 }
 
@@ -90,5 +156,9 @@ class Digraph {
         for (int i = 0; i < n; i++) {
             adj[i] = new LinkedList<>();
         }
+    }
+
+    void addEdge(int v, int w) {
+        adj[v].add(w);
     }
 }
