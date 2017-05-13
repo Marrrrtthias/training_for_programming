@@ -4,69 +4,117 @@ import java.util.*;
  * Created by matthias on 5/2/17.
  */
 public class Dwarves {
-    static Map<String, Collection<String>> dwarfMap = new HashMap<>();
+    static Digraph dwarfGraph;
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        int numCases = scanner.nextInt();
+        int numLines = scanner.nextInt();
+        dwarfGraph = new Digraph((2*numLines > 10000) ? 10000 : 2 * numLines);     // max number of dwarves
         scanner.nextLine();
 
-
-        for (int currCase = 1; currCase <= numCases; currCase++) {
+        Map<String, Integer> namesToIndex = new TreeMap<>();
+        for (int currLine = 1; currLine <= numLines; currLine++) {
             String[] line = scanner.nextLine().split(" ");
-            String[] relation;
+            String[] relation = new String[2];
             if (line[1].equals("<")) {
-                relation = new String[2];
                 relation[0] = line[2];
                 relation[1] = line[0];
             } else if (line[1].equals(">")) {
-                relation = new String[2];
                 relation[0] = line[0];
                 relation[1] = line[2];
             } else {
                 throw new InputMismatchException();
             }
-            dwarfMap.putIfAbsent(relation[0], new HashSet<>());
-            dwarfMap.putIfAbsent(relation[1], new HashSet<>());
-            if (dwarfMap.get(relation[1]).contains(relation[0]) || relation[0].equals(relation[1])) {
-                System.out.println("impossible");
-                System.exit(0);
-            }
-            dwarfMap.get(relation[0]).add(relation[1]);
+            namesToIndex.putIfAbsent(relation[0], namesToIndex.size());
+            namesToIndex.putIfAbsent(relation[1], namesToIndex.size());
+            dwarfGraph.addEdge(namesToIndex.get(relation[0]), namesToIndex.get(relation[1]));
         }
 
-        for (String root : dwarfMap.keySet()) {
-            Map<String, Boolean> visited = new HashMap<>();
-            Map<String, Boolean> finished = new HashMap<>();
-            Map<String, List<String>> backStack = new HashMap<>();
-            String current = null;
-            Stack<String> todo = new Stack<>();
-            todo.push(root);
+        dwarfGraph.n = namesToIndex.size();
+        DFSGoneWild dfs = new DFSGoneWild(namesToIndex.size());
+        dfs.dfsAllNodes(dwarfGraph);
 
+        if (dfs.dicycle != null) {
+            System.out.println("impossible");
+        } else {
+            System.out.println("possible");
+        }
+    }
+
+    static class DFSGoneWild {
+        boolean[] visited;
+        int[] father;
+        List<Integer> dfsPostorder = new LinkedList<>();
+        Deque<Integer> dicycle = null;
+
+        DFSGoneWild(int n) {
+            visited = new boolean[n];
+            father = new int[n];
+        }
+
+        void dfsAllNodes(Digraph G) {
+            int n = G.n;
+            visited = new boolean[n];
+            father = new int[n];
+            for (int s = 0; s < n; s++) {
+                if (!visited[s]) {
+                    dfs(G, s);
+                }
+            }
+        }
+
+        void dfs(Digraph G, int s) {
+            int n = G.n;
+            Deque<Integer> todo = new LinkedList<>();
+            boolean[] onPathFromS = new boolean[n];
+            visited[s] = true;
+            father[s] = -1;
+            onPathFromS[s] = true;
+            todo.push(s);
             while (!todo.isEmpty()) {
-                if (current != null) {
-                    backStack.putIfAbsent(todo.peek(), new LinkedList<>());
-                    backStack.get(todo.peek()).add(current);
+                int entry = todo.pop();
+                if (entry >= 0) {
+                    int v = entry;
+                    onPathFromS[v] = true;
+                    todo.push(v - (n+1));
+                    for (int w : G.adj[v]) {
+                        if (!visited[w]) {
+                            visited[w] = true;
+                            father[w] = v;
+                            todo.push(w);
+                        } else if (onPathFromS[w] && dicycle == null) {
+                            dicycle = new LinkedList<>();
+                            dicycle.add(v);
+                            do {
+                                v = father[v];
+                                dicycle.addFirst(v);
+                            } while (v != w);
+                            return;
+                        }
+                    }
+                } else {
+                    int v = entry + (n+1);
+                    onPathFromS[v] = false;
+                    dfsPostorder.add(v);
                 }
-                current = todo.pop();
-                finished.putIfAbsent(current, false);
-
-                if (finished.get(current)) {
-                    continue;
-                }
-                backStack.putIfAbsent(current, new LinkedList<>());
-                if (backStack.get(current).contains(current)) {
-                    System.out.println("impossible");
-                    System.exit(0);
-                }
-                for (String neighbor : dwarfMap.get(current)) {
-                    todo.push(neighbor);
-                }
-                finished.put(current, true);
             }
-            // TODO
+        }
+    }
+
+    static class Digraph {
+        List<Integer>[] adj;
+        int n;
+
+        Digraph(int n) {
+            this.n = n;
+            this.adj = new List[n];
+            for (int i = 0; i < n; i++) {
+                adj[i] = new LinkedList<>();
+            }
         }
 
-        System.out.println("possible");
+        void addEdge(int v, int w) {
+            adj[v].add(w);
+        }
     }
 }
