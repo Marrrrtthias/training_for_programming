@@ -1,6 +1,7 @@
-5
-a > b
+6
+a > f
 b > c
-x > y
-f > f
-t > a
+x > f
+f < c
+f > t
+t > x
