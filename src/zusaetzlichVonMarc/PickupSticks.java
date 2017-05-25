@@ -1,3 +1,4 @@
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
@@ -112,6 +113,7 @@ class DFSGoneWild{
     			dfs(g,s);
     		}
     	}
+
     }
 
     public void dfs(Graph g, int s){
@@ -142,16 +144,30 @@ class DFSGoneWild{
     						v = father[v];
     						dicycle.addFirst(v);
     					} while (v!=w);
-    					return;
+    					
+    					for (Object el : dicycle){
+    						System.out.println(((el)));
+    					}
+    					/*
+    					 * TODO
+    					 * change to actual algorithm
+    					 * you must not return here, but check if an element is in a dicycle in the else-statement
+    					 * because we also want to have semi-complete topological orders
+    					 * (see Sample Input1, Case2)
+    					 */
+    					//return;
     					}
 
     				}
 
     			} else {
+    				
     				int v = entry+(n+1);
     				onPathFromS[v]=false;
-    				dfsPostorder.add(v);
-    				value+=PickupSticks.values[v]; //task-specific TODO
+    				if(dicycle==null || !dicycle.contains(v)){
+    					dfsPostorder.add(v);
+    					value+=PickupSticks.values[v]; //task-specific TODO
+    				}
     		}
 
     	}
