@@ -62,6 +62,7 @@ public class PickupSticks {
 	    	   * values keeps track of the values used
 	    	   */
 	    	  System.out.println("Case #"+i+": "+toposort.value);
+	    	  System.out.println("ausfgehobene Stäbchen: " + toposort.getPostorder().toString());
 
 
 
@@ -168,11 +169,11 @@ class DFSGoneWild{
  * my Graph-structure
  */
 class Graph{
-    public ArrayList<LinkedList<Integer>> adj = new ArrayList<LinkedList<Integer>>();
+    public ArrayList<LinkedList<Integer>> adj = new ArrayList<>();
 
     Graph(int n){
     	for(int i=0; i<n; i++) {
-    		adj.add(new LinkedList<Integer>());
+    		adj.add(new LinkedList<>());
     	}
     }
 
